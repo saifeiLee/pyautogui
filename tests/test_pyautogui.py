@@ -8,7 +8,7 @@ import time
 import unittest
 import doctest
 from collections import namedtuple  # Added in Python 2.6.
-
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import pyautogui
 
 # Make the cwd the folder that this test_pyautogui.py file resides in:
