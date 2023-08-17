@@ -531,6 +531,22 @@ def isShiftCharacter(character):
     # NOTE TODO - This will be different for non-qwerty keyboards.
     return character.isupper() or character in set('~!@#$%^&*()_+{}|:"<>?')
 
+def get_display_server():
+    """
+    Check if linux display server is X11 or Wayland
+    """
+    try:
+        # check for wayland
+        if 'WAYLAND_DISPLAY' in os.environ:
+            return 'wayland'
+        # check for x11
+        if 'DISPLAY' in os.environ and 'WAYLAND_DISPLAY' not in os.environ:
+            return 'x11'
+        return 'Unknown'
+    except:
+        return 'Unknown'
+        
+
 
 # The platformModule is where we reference the platform-specific functions.
 if sys.platform.startswith("java"):
@@ -541,7 +557,13 @@ elif sys.platform == "darwin":
 elif sys.platform == "win32":
     from . import _pyautogui_win as platformModule
 elif platform.system() == "Linux":
-    from . import _pyautogui_x11 as platformModule
+    display_server = get_display_server()
+    if display_server == 'wayland':
+        raise PyAutoGUIException("Wayland is not yet supported by PyAutoGUI.")
+    elif display_server == 'x11':
+        from . import _pyautogui_x11 as platformModule
+    else:
+        raise NotImplementedError("Your platform (%s) is not supported by PyAutoGUI." % (platform.system()))
 else:
     raise NotImplementedError("Your platform (%s) is not supported by PyAutoGUI." % (platform.system()))
 
